@@ -14,9 +14,6 @@ def classify():
               ('sepulchral', 'n'), ('sepulchritude', 'n'),
               ('pulchritudinal', 'n')]
 
-    for word in train_list:
-        print(word[0] + '\n' + str(word_features(word[0]))+ '\n')
-
     train_set = [(word_features(word), outcome) for (word, outcome) in train_list]
     classifier = nltk.NaiveBayesClassifier.train(train_set)
     test_list = ['shimmy', 'kendall', 'balls', 'blood', 'pencil', 
