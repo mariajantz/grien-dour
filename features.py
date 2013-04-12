@@ -1,5 +1,3 @@
-import nltk
-
 def vowel_string(word):
     the_string = ''
     for letter in word:

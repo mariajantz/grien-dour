@@ -1,5 +1,5 @@
 from features import vowel_string, double_letters, word_features
-import nltk
+from naivebayes import NaiveBayesClassifier
 def classify():
     train_list = [('bookkeeper', 'y'), ('will', 'y'),
               ('bottom', 'y'), ('poop', 'y'),
@@ -12,11 +12,12 @@ def classify():
               ('french', 'n'), ('confessions', 'y'),
               ('sobriety', 'n'), ('exsanguination', 'n'),
               ('sepulchral', 'n'), ('sepulchritude', 'n'),
-              ('pulchritudinal', 'n')]
+              ('pulchritudinous', 'n')]
 
     train_set = [(word_features(word), outcome) for (word, outcome) in train_list]
-    classifier = nltk.NaiveBayesClassifier.train(train_set)
-    test_list = ['shimmy', 'kendall', 'balls', 'blood', 'pencil', 
+    classifier = NaiveBayesClassifier.train(train_set)
+    test_list = ['shimmy', 'kendall', 'blammo', 'patty', 'pencil', 
                   'pen', 'calendar', 'nothing']
     for word in test_list:
         print(word + '  ' + classifier.classify(word_features(word)))
+    classifier.show_most_informative_features()
