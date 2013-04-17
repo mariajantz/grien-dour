@@ -123,8 +123,6 @@ class NaiveBayesClassifier(ClassifierI):
     def show_most_informative_features(self, n=100):
         # Determine the most relevant features, and display them.
         cpdist = self._feature_probdist
-        print 'Most Informative Features'
-
         for (fname, fval) in self.most_informative_features(n):
             def labelprob(l):
                 return cpdist[l,fname].prob(fval)
@@ -132,7 +130,7 @@ class NaiveBayesClassifier(ClassifierI):
                              if fval in cpdist[l,fname].samples()],
                             key=labelprob)
             if len(labels) == 1: continue
-            print (fname, labels)
+            yield (fname, labels)
             l0 = labels[0]
             l1 = labels[-1]
             #print (fname, cpdist[l0, fname].prob(fval))

@@ -66,3 +66,8 @@ def word_features(word):
     features['word_length'] = len(word)
     features['is_palindrome'] = is_palindrome(word)
     return features 
+
+def feature_name_list():
+    return ['first_vowel', 'last_vowel', 'bookend_vowels', 'first_const', 'second_const', 'last_const',
+            'penult_const', 'bookend_const', 'num_doubles', 'doubles_exist', 'word_length',
+            'is_palindrome']

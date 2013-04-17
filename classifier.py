@@ -1,4 +1,4 @@
-from features import vowel_string, double_letters, word_features
+from features import word_features, feature_name_list
 from naivebayes import NaiveBayesClassifier
 def classify():
     train_list = [('bookkeeper', 'y'), ('will', 'y'),
@@ -18,6 +18,12 @@ def classify():
     classifier = NaiveBayesClassifier.train(train_set)
     test_list = ['shimmy', 'kendall', 'blammo', 'patty', 'pencil', 
                   'pen', 'calendar', 'nothing']
-    for word in test_list:
-        print(word + '  ' + classifier.classify(word_features(word)))
-    classifier.show_most_informative_features()
+    find_best_rules(classifier)
+
+def find_best_rules(classifier):
+    this_feature_set = set()
+    master_feature_set = set(feature_name_list())
+    for feature in classifier.show_most_informative_features(10000):
+        this_feature_set.add(feature[0])
+
+    print master_feature_set - this_feature_set
