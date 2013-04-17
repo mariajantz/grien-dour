@@ -26,10 +26,10 @@ class Game:
         elif not has_played_before:
             print("You will make a rule for a set of words.  For example, your \nwords must all have a double letter in them (like 'Green' and 'Door')\nin order to be classified as 'correct.' \nThis rule can deal with the number of or position of letters, \nthe presence of a specific letter, whether something is a \nvowel or consonant, or the part of speech of the word.  \nThe computer will try to guess your rule based on the words\nyou enter that follow the rule.  Have fun!\n")
 
-    def get_y_words(self):
+    def get_y_words(self, n):
         i = 1
-        print("Enter 5 words that belong in your set.")
-        while i < 6:
+        print("Enter %d words that belong in your set." % n)
+        while i <= n:
             y_word = raw_input("Word %i: " % i)
             y_word = y_word.lower()
             if len(y_word) < 1:
@@ -40,10 +40,10 @@ class Game:
                 i += 1
                 self.known_y_words.append(y_word)
 
-    def get_n_words(self):
+    def get_n_words(self, n):
         i = 1
-        print("Now, enter 5 words that do not belong in your set.")
-        while i < 6:
+        print("Now, enter %d words that do not belong in your set." % n)
+        while i <= n:
             n_word = raw_input("Word %i: " % i)
             n_word = n_word.lower()
             if len(n_word) < 1:
@@ -56,12 +56,37 @@ class Game:
                 i += 1
                 self.known_n_words.append(n_word)
 
+    def word_match(rule):
+        #drat, I forget how to reference the corpus.
+        
+
+
+    def word_guess(rule, count):
+        #cycle through an nltk corpus until you find a word that matches the rule and return that.
+        nltk_word = "YOLO" 
+        correct = input("Does the word %s follow your rule? (y/n) " % nltk_word).lower()[0]
+        if count == 5 and correct == 'y':
+            print("Looks like I've got it figured out!")
+            #call whatever we need to play again
+        elif correct == 'y': 
+            word_guess(rule, count+1)
+        elif correct == 'n': 
+            print("Well shucks. Please enter more words to help me guess better.")
+            get_y_words(2)
+            get_x_words(2)
+        
+
     def interaction_loop(self):
         self.play_again = True
         self.welcome_msg()
+        num_words = 5
         while self.play_again == True:
-            self.get_y_words()
-            self.get_n_words()
+            self.get_y_words(num_words)
+            self.get_n_words(num_words)
+            num_words = 2
+            rule = best_feature()
+            word_guess(rule, 0)
+            #if 5 words are correct, computer wins.
             self.play_again = False
 
     def best_feature(self):
@@ -74,4 +99,4 @@ class Game:
 
 instance = Game()
 instance.test()
-#instance.interaction_loop()
+instance.interaction_loop()
