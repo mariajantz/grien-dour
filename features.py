@@ -33,18 +33,26 @@ def multiple_letters(word):
             multlist.append(letter)
     return list(set(multlist)) #gets rid of duplicates
 
-def letter_pairs(word):
-    pairlist = []
-    for i in range(len(word)-1):
-        temp = word[i] + word[i+1]
-        pairlist.append(temp)
-    return pairlist #this one will need a helper function I think, to cycle through
-    #so that if apair in bpairlist it's happy
-
 def same_letters(a, b):
     if a == b:
         return True
     return False
+
+def letter_pairs(word):
+    pairlist = []
+    for i in range(len(word)-1):
+        pairlist.append(word[i:i+1])
+    return pairlist
+
+def same_pairs(alist, blist):
+    same = []
+    longer, shorter = alist, blist
+    if len(blist)>len(alist):
+        longer, shorter = blist, alist
+    for pair in longer:
+        if pair in shorter: 
+            same.append(pair)
+    return same
 
 def word_features(word):
     features = {}
