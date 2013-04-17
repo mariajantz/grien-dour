@@ -1,4 +1,4 @@
-from classifier import classify
+from rulewizard import *
 
 class Game:
     def __init__(self):
@@ -58,6 +58,7 @@ class Game:
 
     def word_match(rule):
         #drat, I forget how to reference the corpus.
+        pass
         
 
 
@@ -93,10 +94,16 @@ class Game:
         return self.most_likely_features[0][0]
 
     def test(self):
-        #self.interaction_loop()
-        self.most_likely_features = classify()
-        print self.best_feature()
+        train_list = [('bosom', 'y'), ('ipad', 'n'),
+                  ('calendar', 'n'), ('bottle', 'y'),
+                  ('barn', 'n'), ('breckbill', 'n'),
+                  ('bob', 'y'), ('bong', 'y'),
+                  ('black', 'n')]
+
+        rules = RuleWizard(train_list)
+        rules.classify()
+        rules.find_significant_subfeature()
 
 instance = Game()
 instance.test()
-instance.interaction_loop()
+#instance.interaction_loop()
