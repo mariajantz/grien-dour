@@ -42,9 +42,10 @@ def letter_pairs(word):
     pairlist = []
     for i in range(len(word)-1):
         pairlist.append(word[i:i+1])
-    return pairlist
+    return set(pairlist)
 
-def same_pairs(alist, blist):
+def same_pairs(word1, word2):
+    '''
     same = []
     longer, shorter = alist, blist
     if len(blist)>len(alist):
@@ -53,6 +54,7 @@ def same_pairs(alist, blist):
         if pair in shorter: 
             same.append(pair)
     return same
+    '''
 
 def word_features(word):
     features = {}

@@ -73,6 +73,5 @@ class Game:
         print self.best_feature()
 
 instance = Game()
-#instance.test()
-instance.interaction_loop()
-
+instance.test()
+#instance.interaction_loop()
