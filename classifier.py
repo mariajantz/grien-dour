@@ -1,6 +1,12 @@
 from features import word_features, feature_name_list
 from naivebayes import NaiveBayesClassifier
 def classify():
+    train_list = [('bosom', 'y'), ('ipad', 'n'),
+                  ('calendar', 'n'), ('bottle', 'y'),
+                  ('barn', 'n'), ('breckbill', 'n'),
+                  ('bob', 'y'), ('bong', 'y'),
+                  ('black', 'n')]
+    '''
     train_list = [('bookkeeper', 'y'), ('will', 'y'),
               ('bottom', 'y'), ('poop', 'y'),
               ('butts', 'y'), ('poopbutts', 'y'),
@@ -13,17 +19,16 @@ def classify():
               ('sobriety', 'n'), ('exsanguination', 'n'),
               ('sepulchral', 'n'), ('sepulchritude', 'n'),
               ('pulchritudinous', 'n')]
+      '''
 
     train_set = [(word_features(word), outcome) for (word, outcome) in train_list]
     classifier = NaiveBayesClassifier.train(train_set)
     test_list = ['shimmy', 'kendall', 'blammo', 'patty', 'pencil', 
                   'pen', 'calendar', 'nothing']
-    find_best_rules(classifier)
+    return find_best_rules(classifier)
 
 def find_best_rules(classifier):
-    this_feature_set = set()
-    master_feature_set = set(feature_name_list())
-    for feature in classifier.show_most_informative_features(10000):
-        this_feature_set.add(feature[0])
-
-    print master_feature_set - this_feature_set
+    sorted_feature_list = [i for i in classifier.show_most_informative_features(10000)]
+    #Basically, sort features according to probability.
+    sorted_feature_list.sort(key=lambda feature: feature[1], reverse=True)
+    return sorted_feature_list

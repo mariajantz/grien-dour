@@ -129,11 +129,11 @@ class NaiveBayesClassifier(ClassifierI):
             labels = sorted([l for l in self._labels
                              if fval in cpdist[l,fname].samples()],
                             key=labelprob)
-            if len(labels) == 1: continue
-            yield (fname, labels)
+            #if len(labels) == 1 and labels == ['n']: continue
+            #yield (fname, labels)
             l0 = labels[0]
             l1 = labels[-1]
-            #print (fname, cpdist[l0, fname].prob(fval))
+            yield (fname, cpdist[l0, fname].prob(fval), labels)
             if cpdist[l0,fname].prob(fval) == 0:
                 ratio = 'INF'
             else:
