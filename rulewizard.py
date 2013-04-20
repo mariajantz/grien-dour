@@ -61,7 +61,10 @@ class RuleWizard:
         from the corpus match the rules. In mode 2, the functions will check if the rule is even
         valid for the first word in the training list.
         '''
-        if self.corpus_word_is_usable(word) and self.feature_dispatch[self.best_feature_list[0]](word, mode=2):
+        while not self.feature_dispatch[self.best_feature_list[0]](word, mode=2):
+            print "amputating..."
+            self.amputate_first_significant_feature()
+        if self.corpus_word_is_usable(word):
             return self.feature_dispatch[self.best_feature_list[0]](word, mode=1)
         else:
             return False
