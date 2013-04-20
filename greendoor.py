@@ -58,20 +58,28 @@ class Game:
                 self.known_n_words.append(n_word)
 
     def nltk_word(self):
-        #drat, I forget how to reference the corpus.
         self.words = nltk.corpus.brown.words('ch01')
         numstrings = [str(i+1) for i in range(10, 30)]
         for num in numstrings: 
             self.words = self.words + nltk.corpus.brown.words('ch%s'%num)
-        return self.words
         
-    def word_match(self, rule): #finds word in self.words that matches the rule and returns that word, deleting it and everything before it from the list.
-        pass
+    def word_match(self): #finds word in self.words that matches the rule and returns that word, deleting it and everything before it from the list.
+        #cycle through list and find a word that matches the best rule currently given by rule wizard
+        index = 0
+        word = ''
+        for i in range(len(self.words)):
+            if does_word_match_current_best_rule(self.words[i]): # obeys rule:
+                index = i
+                word = self.words[i]
+                break
+        #return that word
+        self.words = self.words[i+1:]
+        return word
 
-    def word_guess(self, rule, count):
+    def word_guess(self, count):
         #cycle through an nltk corpus until you find a word that matches the rule and return that.
-        nltk_word = "YOLO" 
-        correct = input("Does the word %s follow your rule? (y/n) " % nltk_word).lower()[0]
+        word_to_guess = self.word_match() 
+        correct = input("Does the word %s follow your rule? (y/n) " % word_to_guess).lower()[0]
         if count == 5 and correct == 'y':
             print("Looks like I've got it figured out!")
             #call whatever we need to play again
@@ -105,9 +113,11 @@ class Game:
                   ('barn', 'n'), ('breckbill', 'n'),
                   ('bob', 'y'), ('bong', 'y'),
                   ('black', 'n')]
-        print len(self.nltk_word('double_letters'))
+        self.nltk_word()
         rules = RuleWizard(train_list)
-        rules.find_best_rules()
+        rules.classify()
+        rules.find_significant_subfeature()
+        self.word_guess(0)
 
 instance = Game()
 instance.test()
