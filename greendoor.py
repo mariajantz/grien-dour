@@ -1,4 +1,5 @@
 from rulewizard import *
+import nltk
 
 class Game:
     def __init__(self):
@@ -56,13 +57,18 @@ class Game:
                 i += 1
                 self.known_n_words.append(n_word)
 
-    def word_match(rule):
+    def nltk_word(self):
         #drat, I forget how to reference the corpus.
-        pass
+        self.words = nltk.corpus.brown.words('ch01')
+        numstrings = [str(i+1) for i in range(10, 30)]
+        for num in numstrings: 
+            self.words = self.words + nltk.corpus.brown.words('ch%s'%num)
+        return self.words
         
+    def word_match(self, rule): #finds word in self.words that matches the rule and returns that word, deleting it and everything before it from the list.
+        pass
 
-
-    def word_guess(rule, count):
+    def word_guess(self, rule, count):
         #cycle through an nltk corpus until you find a word that matches the rule and return that.
         nltk_word = "YOLO" 
         correct = input("Does the word %s follow your rule? (y/n) " % nltk_word).lower()[0]
@@ -99,7 +105,7 @@ class Game:
                   ('barn', 'n'), ('breckbill', 'n'),
                   ('bob', 'y'), ('bong', 'y'),
                   ('black', 'n')]
-
+        print len(self.nltk_word('double_letters'))
         rules = RuleWizard(train_list)
         rules.classify()
         rules.find_significant_subfeature()
