@@ -17,6 +17,7 @@ class RuleWizard:
         #current_best_feature is set so we can "iterate" through the list of most informative features.
         self.current_best_feature = 0
         self.train_list = [i for i in _train_list if i[1] == 'y']
+        self.train_words = [i[0] for i in _train_list]
         self.subfeature = None
         self.feature_dispatch = {'first_vowel' : self.first_vowel,
                 'last_vowel' : self.last_vowel,
@@ -48,42 +49,49 @@ class RuleWizard:
         sorted_feature_list.sort(key=lambda feature: feature[1], reverse=True)
         self.best_feature_list = [i[0] for i in sorted_feature_list]
 
-    def find_significant_subfeature(self):
-        return self.feature_dispatch[self.best_feature_list[self.current_best_feature]]()
+    def does_word_match_current_best_rule(self, word):
+        '''
+        Will dispatch to a function depending on the current best feature. That function
+        will take a mode and word. 'mode' can be 1 or 2. In mode 1, 
+        '''
+        return self.feature_dispatch[self.best_feature_list[self.current_best_feature]](mode=1, word)
 
-    def last_vowel(self):
+    def last_vowel(self, word, mode=1):
+        if mode == 1:
+            return vowel_string(self.train_list[0])[-1] == vowel_string(word)[-1]
+
+    def first_vowel(self, word, mode=1):
+        if mode == 1:
+            return vowel_string(self.train_list[0])[0] == vowel_string(word)[0]
+
+    def bookend_vowels(self, word, mode=1):
         pass
 
-    def first_vowel(self):
-        print vowel_string(self.train_list[0][0])[0]
+    def first_const(self, word, mode=1):
+        if mode == 1:
+            return const_string(self.train_list[0])[0] == const_string(word)[0]
 
-    def bookend_vowels(self):
+    def second_const(self, word, mode=1):
         pass
 
-    def first_const(self):
+    def last_const(self, word, mode=1):
         pass
 
-    def second_const(self):
-        pass
-    
-    def last_const(self):
+    def penult_const(self, word, mode=1):
         pass
 
-    def penult_const(self):
+    def bookend_const(self, word, mode=1):
         pass
 
-    def bookend_const(self):
+    def num_doubles(self, word, mode=1):
         pass
 
-    def num_doubles(self):
+    def doubles_exist(self, word, mode=1):
         pass
 
-    def doubles_exist(self):
+    def word_length(self, word, mode=1):
         pass
 
-    def word_length(self):
-        pass
-
-    def is_palindrome(self):
+    def is_palindrome(self, word, mode=1):
         pass
 

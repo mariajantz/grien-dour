@@ -107,8 +107,7 @@ class Game:
                   ('black', 'n')]
         print len(self.nltk_word('double_letters'))
         rules = RuleWizard(train_list)
-        rules.classify()
-        rules.find_significant_subfeature()
+        rules.find_best_rules()
 
 instance = Game()
 instance.test()
