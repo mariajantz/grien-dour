@@ -3,8 +3,8 @@ import nltk
 
 class Game:
     def __init__(self):
-        self.known_y_words = list()
-        self.known_n_words = list()
+        self.train_list = list()
+        self.guessed_words = list()
 
     def welcome_msg(self):
         print("\n")
@@ -34,12 +34,12 @@ class Game:
             y_word = raw_input("Word %i: " % i)
             y_word = y_word.lower()
             if len(y_word) < 1:
-                print("Please enter a word this time.")
-            elif y_word in self.known_y_words:
-                print("You already entered that word.")
+                print("Please enter a word this time...")
+            elif (y_word, 'y') in self.train_list:
+                print("You already gave me that word.")
             else:
                 i += 1
-                self.known_y_words.append(y_word)
+                self.train_list.append((y_word, 'y'))
 
     def get_n_words(self, n):
         i = 1
@@ -49,13 +49,13 @@ class Game:
             n_word = n_word.lower()
             if len(n_word) < 1:
                 print("Please enter a word this time.")
-            elif n_word in self.known_n_words:
+            elif (n_word, 'n') in self.train_list:
                 print("You already entered that word.")
-            elif n_word in self.known_y_words:
-                print("You said that word belongs in your set. Stop contradicting yourself.")
+            elif (n_word, 'y') in self.train_list:
+                print("You said that word belongs in your \'yes\' set. Stop contradicting yourself.")
             else:
                 i += 1
-                self.known_n_words.append(n_word)
+                self.train_list.append((n_word, 'n'))
 
     def nltk_word(self):
         self.words = nltk.corpus.brown.words('ch01')
@@ -63,15 +63,19 @@ class Game:
         for num in numstrings: 
             self.words = self.words + nltk.corpus.brown.words('ch%s'%num)
         
-    def word_match(self): #finds word in self.words that matches the rule and returns that word, deleting it and everything before it from the list.
+    def word_match(self): 
+        '''
+        Finds word in self.words that matches the rule and returns that word, 
+        deleting it and everything before it from the list.
+        '''
         #cycle through list and find a word that matches the best rule currently given by rule wizard
         index = 0
         word = ''
         for i in range(len(self.words)):
-            if does_word_match_current_best_rule(self.words[i]): # obeys rule:
-                index = i
-                word = self.words[i]
-                break
+            if self.wizard.does_word_match_current_best_rule(self.words[i]): # obeys rule:
+                if self.words[i].lower() not in self.guessed_words:
+                    word = self.words[i]
+                    break
         #return that word
         self.words = self.words[i+1:]
         return word
@@ -79,28 +83,32 @@ class Game:
     def word_guess(self, count):
         #cycle through an nltk corpus until you find a word that matches the rule and return that.
         word_to_guess = self.word_match() 
-        correct = input("Does the word %s follow your rule? (y/n) " % word_to_guess).lower()[0]
+        correct = raw_input("Does the word \"%s\" follow your rule? (y/n) " % word_to_guess).lower()[0]
         if count == 5 and correct == 'y':
             print("Looks like I've got it figured out!")
             #call whatever we need to play again
         elif correct == 'y': 
-            word_guess(rule, count+1)
+            self.guessed_words.append(word_to_guess.lower())
+            self.word_guess(count+1)
         elif correct == 'n': 
             print("Well shucks. Please enter more words to help me guess better.")
+            self.wizard.amputate_first_significant_feature()
             get_y_words(2)
-            get_x_words(2)
+            get_n_words(2)
+            self.word_guess(0)
         
 
     def interaction_loop(self):
         self.play_again = True
         self.welcome_msg()
         num_words = 5
+        self.nltk_word()
         while self.play_again == True:
             self.get_y_words(num_words)
             self.get_n_words(num_words)
-            num_words = 2
-            rule = best_feature()
-            word_guess(rule, 0)
+            self.wizard = RuleWizard(self.train_list)
+            self.wizard.find_best_rules()
+            self.word_guess(0)
             #if 5 words are correct, computer wins.
             self.play_again = False
 
@@ -108,17 +116,16 @@ class Game:
         return self.most_likely_features[0][0]
 
     def test(self):
-        train_list = [('bosom', 'y'), ('ipad', 'n'),
-                  ('calendar', 'n'), ('bottle', 'y'),
-                  ('barn', 'n'), ('breckbill', 'n'),
-                  ('bob', 'y'), ('bong', 'y'),
+        train_list = [('poppies', 'y'), ('racket', 'n'),
+                  ('somethin', 'n'), ('puppies', 'y'),
+                  ('blodnasir', 'n'), ('vietnam', 'n'),
+                  ('freedom', 'y'), ('commies', 'y'),
                   ('black', 'n')]
         self.nltk_word()
-        rules = RuleWizard(train_list)
-        rules.classify()
-        rules.find_significant_subfeature()
+        self.wizard = RuleWizard(train_list)
+        self.wizard.find_best_rules()
         self.word_guess(0)
 
 instance = Game()
-instance.test()
+instance.interaction_loop()
 #instance.interaction_loop()

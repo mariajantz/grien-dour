@@ -1,5 +1,6 @@
 from features import *
 from naivebayes import NaiveBayesClassifier
+import string
 
 class RuleWizard:
     '''
@@ -8,32 +9,35 @@ class RuleWizard:
     this is comprised of the words that the user has given that can be differentiated by
     a rule).
 
-    In normal usage, the classify() is called, which creates a Naive Bayes classifier i
-    (stolen from NLTK) to find the "most informative features" via a built-in function.
+    In normal usage, the find_best_rules() method is called after initialization, which creates 
+    a Naive Bayes classifier (stolen from NLTK) to find the "most informative features" via a
+    built-in function.
     '''
     def __init__(self, _train_list):
         self.features = feature_name_list()
         self.best_feature_list = list()
         #current_best_feature is set so we can "iterate" through the list of most informative features.
-        self.current_best_feature = 0
         self.train_list = [i for i in _train_list if i[1] == 'y']
         self.train_words = [i[0] for i in _train_list]
-        self.subfeature = None
-        self.feature_dispatch = {'first_vowel' : self.first_vowel,
-                'last_vowel' : self.last_vowel,
-                'bookend_vowels' : self.bookend_vowels,
-                'first_const' : self.first_const,
-                'second_const' : self.second_const,
-                'last_const' : self.last_const,
-                'penult_const' : self.penult_const,
-                'bookend_const' : self.bookend_const,
-                'num_doubles' : self.num_doubles,
-                'doubles_exist' : self.doubles_exist,
-                'word_length'   : self.word_length,
-                'is_palindrome' : self.is_palindrome}
+        self.feature_dispatch = {'first_vowel' : self.test_first_vowel,
+                'last_vowel' : self.test_last_vowel,
+                'bookend_vowels' : self.test_bookend_vowels,
+                'first_const' : self.test_first_const,
+                'second_const' : self.test_second_const,
+                'last_const' : self.test_last_const,
+                'penult_const' : self.test_penult_const,
+                'bookend_const' : self.test_bookend_const,
+                'num_doubles' : self.test_num_doubles,
+                'doubles_exist' : self.test_doubles_exist,
+                'word_length'   : self.test_word_length,
+                'is_palindrome' : self.test_is_palindrome}
 
-    def get_next_significant_subfeature(self):
-        self.current_best_feature += 1
+    def amputate_first_significant_feature(self):
+        self.best_feature_list = self.best_feature_list[1:]
+
+    def retrain(self, _train_list):
+        self.train_list = [i for i in _train_list if i[1] == 'y']
+        self.find_best_rules()
 
     def find_best_rules(self):
         '''
@@ -48,50 +52,98 @@ class RuleWizard:
         #Basically, sort features according to probability.
         sorted_feature_list.sort(key=lambda feature: feature[1], reverse=True)
         self.best_feature_list = [i[0] for i in sorted_feature_list]
+        print self.best_feature_list
 
     def does_word_match_current_best_rule(self, word):
         '''
         Will dispatch to a function depending on the current best feature. That function
-        will take a mode and word. 'mode' can be 1 or 2. In mode 1, 
+        will take a mode and word. 'mode' can be 1 or 2. In mode 1, the functions will checkif words
+        from the corpus match the rules. In mode 2, the functions will check if the rule is even
+        valid for the first word in the training list.
         '''
-        return self.feature_dispatch[self.best_feature_list[self.current_best_feature]](mode=1, word)
+        if self.corpus_word_is_usable(word) and self.feature_dispatch[self.best_feature_list[0]](word, mode=2):
+            return self.feature_dispatch[self.best_feature_list[0]](word, mode=1)
+        else:
+            return False
 
-    def last_vowel(self, word, mode=1):
+    def corpus_word_is_usable(self, word):
+        '''
+        Make sure we want to try to use this word. if not, return False to ask
+        for another word.
+        '''
+        #if there are funky characters in the word, return False.
+        if set(word.lower()) - set(string.lowercase) != set():
+            return False
+        if vowel_string(word) == '':
+            return False
+        if const_string(word) == '':
+            return False
+        if word.lower() in ['the', 'a', 'an']:
+            return False
+        return True
+
+    def test_last_vowel(self, word, mode=1):
         if mode == 1:
-            return vowel_string(self.train_list[0])[-1] == vowel_string(word)[-1]
+            return vowel_string(self.train_words[0])[-1] == vowel_string(word)[-1]
+        elif mode == 2:
+            return True
 
-    def first_vowel(self, word, mode=1):
+    def test_first_vowel(self, word, mode=1):
         if mode == 1:
-            return vowel_string(self.train_list[0])[0] == vowel_string(word)[0]
+            return vowel_string(self.train_words[0])[0] == vowel_string(word)[0]
+        elif mode == 2:
+            return True
 
-    def bookend_vowels(self, word, mode=1):
+    def test_bookend_vowels(self, word, mode=1):
         pass
 
-    def first_const(self, word, mode=1):
+    def test_first_const(self, word, mode=1):
         if mode == 1:
-            return const_string(self.train_list[0])[0] == const_string(word)[0]
+            return const_string(self.train_words[0])[0] == const_string(word)[0]
+        elif mode == 2:
+            return True
 
-    def second_const(self, word, mode=1):
+    def test_second_const(self, word, mode=1):
+        if mode == 1:
+            return const_string(self.train_words[0])[1] == const_string(word)[1]
+        elif mode == 2:
+            return len(const_string(self.train_words[0])) >= 2
+
+    def test_last_const(self, word, mode=1):
+        if mode == 1:
+            return const_string(self.train_words[0])[-1] == const_string(word)[-1]
+        elif mode == 2:
+            return True
+
+    def test_penult_const(self, word, mode=1):
+        if mode == 1:
+            return const_string(self.train_words[0])[-2] == const_string(word)[-2]
+        elif mode == 2:
+            return len(const_string(self.train_words[0])) >= 2
+
+    def test_bookend_const(self, word, mode=1):
         pass
 
-    def last_const(self, word, mode=1):
-        pass
+    def test_num_doubles(self, word, mode=1):
+        if mode == 1:
+            return len(double_letters(self.train_words[0])) == len(double_letters(word))
+        elif mode == 2: 
+            return len(double_letters(self.train_words[0])) >= 1
 
-    def penult_const(self, word, mode=1):
-        pass
+    def test_doubles_exist(self, word, mode=1):
+        if mode == 1:
+            return len(double_letters(word)) > 0
+        elif mode == 2:
+            return len(double_letter(self.train_words[0])) >= 1
 
-    def bookend_const(self, word, mode=1):
-        pass
+    def test_word_length(self, word, mode=1):
+        if mode == 1:
+            return len(self.train_words[0]) == len(word)
+        elif mode == 2:
+            return True
 
-    def num_doubles(self, word, mode=1):
-        pass
-
-    def doubles_exist(self, word, mode=1):
-        pass
-
-    def word_length(self, word, mode=1):
-        pass
-
-    def is_palindrome(self, word, mode=1):
-        pass
-
+    def test_is_palindrome(self, word, mode=1):
+        if mode == 1:
+            return is_palindrome(word)
+        elif mode == 2:
+            return True

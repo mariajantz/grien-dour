@@ -66,8 +66,9 @@ def word_features(word):
     const = const_string(word)
     if len(const) >= 1:
         features['first_const'] = const[0]
-        features['second_const'] = const[1]
         features['last_const'] = const[-1]
+    if len(const) >= 2:
+        features['second_const'] = const[1]
         features['penult_const'] = const[-2]
         features['bookend_const'] = same_letters(const[0], const[-1])
     doubles = double_letters(word)
