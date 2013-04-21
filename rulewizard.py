@@ -19,7 +19,8 @@ class RuleWizard:
         #current_best_feature is set so we can "iterate" through the list of most informative features.
         self.train_list = [i for i in _train_list if i[1] == 'y']
         self.train_words = [i[0] for i in _train_list]
-        self.feature_dispatch = {'first_vowel' : self.test_first_vowel,
+        self.feature_dispatch = {
+                'first_vowel' : self.test_first_vowel,
                 'last_vowel' : self.test_last_vowel,
                 'bookend_vowels' : self.test_bookend_vowels,
                 'first_const' : self.test_first_const,
@@ -30,10 +31,16 @@ class RuleWizard:
                 'num_doubles' : self.test_num_doubles,
                 'doubles_exist' : self.test_doubles_exist,
                 'word_length'   : self.test_word_length,
-                'is_palindrome' : self.test_is_palindrome}
+                'is_palindrome' : self.test_is_palindrome,
+                'bookend_letters' : self.test_bookend_letters
+                }
+                
 
     def amputate_first_significant_feature(self):
         self.best_feature_list = self.best_feature_list[1:]
+
+    def call_dat_shiznat(self):
+        self.feature_dispatch[self.best_feature_list[0]]('', mode=3)
 
     def retrain(self, _train_list):
         self.train_list = [i for i in _train_list if i[1] == 'y']
@@ -64,6 +71,7 @@ class RuleWizard:
         while not self.feature_dispatch[self.best_feature_list[0]](word, mode=2):
             print "amputating..."
             self.amputate_first_significant_feature()
+            print self.best_feature_list
         if self.corpus_word_is_usable(word):
             return self.feature_dispatch[self.best_feature_list[0]](word, mode=1)
         else:
@@ -90,63 +98,110 @@ class RuleWizard:
             return vowel_string(self.train_words[0])[-1] == vowel_string(word)[-1]
         elif mode == 2:
             return True
+        elif mode == 3:
+            print "The last vowel must be %s." % vowel_string(self.train_words[0])[-1]
 
     def test_first_vowel(self, word, mode=1):
         if mode == 1:
             return vowel_string(self.train_words[0])[0] == vowel_string(word)[0]
         elif mode == 2:
             return True
+        elif mode == 3:
+            print "The first vowel must be %s." % vowel_string(self.train_words[0])[0]
 
     def test_bookend_vowels(self, word, mode=1):
-        pass
+        if mode == 1:
+            vowelstring = vowel_string(word)
+            return vowelstring[0] == vowelstring[-1]
+        elif mode == 2:
+            vowelstring = vowel_string(self.train_words[0])
+            return vowelstring[0] == vowelstring[-1]
+        elif mode == 3:
+            print "The first vowel must be the same as the last vowel."
 
     def test_first_const(self, word, mode=1):
         if mode == 1:
             return const_string(self.train_words[0])[0] == const_string(word)[0]
         elif mode == 2:
             return True
+        elif mode == 3:
+            print "The first consonant must be %s." % const_string(self.train_words[0])[0]
 
     def test_second_const(self, word, mode=1):
         if mode == 1:
             return const_string(self.train_words[0])[1] == const_string(word)[1]
         elif mode == 2:
             return len(const_string(self.train_words[0])) >= 2
+        elif mode == 3:
+            print "The second consonant must be %s." % const_string(self.train_words[0])[1]
 
     def test_last_const(self, word, mode=1):
         if mode == 1:
             return const_string(self.train_words[0])[-1] == const_string(word)[-1]
         elif mode == 2:
             return True
+        elif mode == 3:
+            print "The last consonant must be %s." % const_string(self.train_words[0])[-1]
 
     def test_penult_const(self, word, mode=1):
         if mode == 1:
             return const_string(self.train_words[0])[-2] == const_string(word)[-2]
         elif mode == 2:
             return len(const_string(self.train_words[0])) >= 2
+            print "The second-to-last consonant must be %s." % const_string(self.train_words[0])[-2]
 
     def test_bookend_const(self, word, mode=1):
-        pass
+        if mode == 1:
+            conststring = const_string(word)
+            if len(conststring) >= 2:
+                return conststring[0] == conststring[-1]
+            else:
+                return False
+        elif mode == 2:
+            conststring = const_string(self.train_words[0])
+            return conststring[0] == conststring[-1]
+        elif mode == 3:
+            print "The first consonant must be the same as the last."
 
     def test_num_doubles(self, word, mode=1):
         if mode == 1:
             return len(double_letters(self.train_words[0])) == len(double_letters(word))
         elif mode == 2: 
-            return len(double_letters(self.train_words[0])) >= 1
+            for i in self.train_words:
+                if len(double_letters(i)) <= 1:
+                    return False
+            return True
+        elif mode == 3:
+            print "All of your words have %d doubles." % len(double_letters(self.train_words[0]))
 
     def test_doubles_exist(self, word, mode=1):
         if mode == 1:
             return len(double_letters(word)) > 0
         elif mode == 2:
-            return len(double_letter(self.train_words[0])) >= 1
+            return len(double_letters(self.train_words[0])) >= 1
+        elif mode == 3:
+            print "All of your words have a set of double letters."
 
     def test_word_length(self, word, mode=1):
         if mode == 1:
             return len(self.train_words[0]) == len(word)
         elif mode == 2:
             return True
+        elif mode == 3:
+            print "All of your words are %d letters long." % len(self.train_words[0])
 
     def test_is_palindrome(self, word, mode=1):
         if mode == 1:
             return is_palindrome(word)
         elif mode == 2:
-            return True
+            return is_palindrome(self.train_words[0])
+        elif mode == 3:
+            print "All of your words are palindromes."
+
+    def test_bookend_letters(self, word, mode=1):
+        if mode == 1:
+            return word[0] == word[-1]
+        elif mode == 2:
+            return self.train_words[0][0] == self.train_words[0][-1]
+        elif mode == 3:
+            print "All of your words have the same first and last letter."

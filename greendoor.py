@@ -86,7 +86,7 @@ class Game:
         correct = raw_input("Does the word \"%s\" follow your rule? (y/n) " % word_to_guess).lower()[0]
         if count == 5 and correct == 'y':
             print("Looks like I've got it figured out!")
-            #call whatever we need to play again
+            self.wizard.call_dat_shiznat()
         elif correct == 'y': 
             self.guessed_words.append(word_to_guess.lower())
             self.word_guess(count+1)

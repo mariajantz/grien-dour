@@ -34,9 +34,7 @@ def multiple_letters(word):
     return list(set(multlist)) #gets rid of duplicates
 
 def same_letters(a, b):
-    if a == b:
-        return True
-    return False
+    return a == b
 
 def letter_pairs(word):
     pairlist = []
@@ -71,6 +69,8 @@ def word_features(word):
         features['second_const'] = const[1]
         features['penult_const'] = const[-2]
         features['bookend_const'] = same_letters(const[0], const[-1])
+    if len(word) >= 1:
+        features['bookend_letters'] = same_letters(word[0], word[-1])
     doubles = double_letters(word)
     features['num_doubles'] = len(doubles)
     features['doubles_exist'] = (len(doubles) > 0)
@@ -81,4 +81,4 @@ def word_features(word):
 def feature_name_list():
     return ['first_vowel', 'last_vowel', 'bookend_vowels', 'first_const', 'second_const', 'last_const',
             'penult_const', 'bookend_const', 'num_doubles', 'doubles_exist', 'word_length',
-            'is_palindrome']
+            'is_palindrome', 'bookend_letters']
