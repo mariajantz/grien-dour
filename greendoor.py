@@ -100,8 +100,8 @@ class Game:
         elif correct == 'n': 
             print("Well shucks. Please enter more words to help me guess better.")
             self.wizard.amputate_first_significant_feature()
-            get_y_words(2)
-            get_n_words(2)
+            self.get_y_words(2)
+            self.get_n_words(2)
             self.word_guess(0)
         
 

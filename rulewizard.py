@@ -18,7 +18,8 @@ class RuleWizard:
         self.best_feature_list = list()
         #current_best_feature is set so we can "iterate" through the list of most informative features.
         self.train_list = [i for i in _train_list if i[1] == 'y']
-        self.train_words = [i[0] for i in _train_list]
+        self.train_words = [i[0] for i in self.train_list]
+        self.letter_set = set(self.train_words[0])
         self.feature_dispatch = {
                 'first_vowel' : self.test_first_vowel,
                 'last_vowel' : self.test_last_vowel,
@@ -32,11 +33,17 @@ class RuleWizard:
                 'doubles_exist' : self.test_doubles_exist,
                 'word_length'   : self.test_word_length,
                 'is_palindrome' : self.test_is_palindrome,
-                'bookend_letters' : self.test_bookend_letters
+                'bookend_letters' : self.test_bookend_letters,
+                'letter_set' : self.test_letter_set
                 }
                 
 
     def amputate_first_significant_feature(self):
+        '''
+        Will chop off the first feature from the best_feature_list. This is
+        called when the first feature in this list decidedly does not match
+        the training set.
+        '''
         self.best_feature_list = self.best_feature_list[1:]
 
     def call_dat_shiznat(self):
@@ -59,14 +66,20 @@ class RuleWizard:
         #Basically, sort features according to probability.
         sorted_feature_list.sort(key=lambda feature: feature[1], reverse=True)
         self.best_feature_list = [i[0] for i in sorted_feature_list]
-        print self.best_feature_list
+
+        #create letter intersection set to find common letters in the train list
+        print self.train_words
+        for i in self.train_words:
+            print self.letter_set
+            self.letter_set = set(i).intersection(self.letter_set)
 
     def does_word_match_current_best_rule(self, word):
         '''
         Will dispatch to a function depending on the current best feature. That function
-        will take a mode and word. 'mode' can be 1 or 2. In mode 1, the functions will checkif words
-        from the corpus match the rules. In mode 2, the functions will check if the rule is even
-        valid for the first word in the training list.
+        will take a mode and word. 'mode' can be 1 or 2. In mode 1, the functions will check whether 
+        given words from the corpus match the rules. In mode 2, the functions will check 
+        if the rule is even valid for the first word in the training list. In mode 3, the 
+        functions will print a string describing the rule.
         '''
         while not self.feature_dispatch[self.best_feature_list[0]](word, mode=2):
             print "amputating..."
@@ -93,6 +106,9 @@ class RuleWizard:
             return False
         return True
 
+    def test_letter_set(self, word, mode=1):
+        pass 
+
     def test_last_vowel(self, word, mode=1):
         if mode == 1:
             return vowel_string(self.train_words[0])[-1] == vowel_string(word)[-1]
@@ -112,7 +128,10 @@ class RuleWizard:
     def test_bookend_vowels(self, word, mode=1):
         if mode == 1:
             vowelstring = vowel_string(word)
-            return vowelstring[0] == vowelstring[-1]
+            if len(vowelstring) >= 2:
+                return vowelstring[0] == vowelstring[-1]
+            else:
+                return False
         elif mode == 2:
             vowelstring = vowel_string(self.train_words[0])
             return vowelstring[0] == vowelstring[-1]
@@ -129,7 +148,7 @@ class RuleWizard:
 
     def test_second_const(self, word, mode=1):
         if mode == 1:
-            return const_string(self.train_words[0])[1] == const_string(word)[1]
+            return len(const_string(word)) >= 2 and const_string(self.train_words[0])[1] == const_string(word)[1]
         elif mode == 2:
             return len(const_string(self.train_words[0])) >= 2
         elif mode == 3:
@@ -145,7 +164,7 @@ class RuleWizard:
 
     def test_penult_const(self, word, mode=1):
         if mode == 1:
-            return const_string(self.train_words[0])[-2] == const_string(word)[-2]
+            return len(const_string(word)) >= 2 and const_string(self.train_words[0])[-2] == const_string(word)[-2]
         elif mode == 2:
             return len(const_string(self.train_words[0])) >= 2
             print "The second-to-last consonant must be %s." % const_string(self.train_words[0])[-2]
@@ -202,6 +221,7 @@ class RuleWizard:
         if mode == 1:
             return word[0] == word[-1]
         elif mode == 2:
+            conststring = const_string(self.train_words[0])
             return self.train_words[0][0] == self.train_words[0][-1]
         elif mode == 3:
             print "All of your words have the same first and last letter."
