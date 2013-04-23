@@ -106,6 +106,7 @@ class Game:
         
 
     def interaction_loop(self):
+        '''Does the actual game-playing with the user.'''
         self.play_again = True
         self.welcome_msg()
         num_words = 5
@@ -117,12 +118,12 @@ class Game:
             self.wizard.find_best_rules()
             self.word_guess(0)
             #if 5 words are correct, computer wins.
-            self.play_again = False
+            self.play_again = self.check_play_again()
 
     def best_feature(self):
         return self.most_likely_features[0][0]
 
-    def play_again(self): 
+    def check_play_again(self): 
         '''Asks user if they want to play again.'''
         if input("Do you want to play again? (y/n) ").lower()[0] == 'y':
             return True
