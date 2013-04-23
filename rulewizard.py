@@ -40,14 +40,30 @@ class RuleWizard:
 
     def amputate_first_significant_feature(self):
         '''
-        Will chop off the first feature from the best_feature_list. This is
+        Will remove the first feature from the best_feature_list. This is
         called when the first feature in this list decidedly does not match
         the training set.
         '''
         self.best_feature_list = self.best_feature_list[1:]
+        self.is_letter_set_significant()
 
     def call_dat_shiznat(self):
+        '''
+        Calls the test function of the best feature in mode 3 to print out a description
+        of the rule for that feature.
+        '''
         self.feature_dispatch[self.best_feature_list[0]]('', mode=3)
+
+    def is_letter_set_significant(self):
+        '''
+        Tests the letter set (which is the intersection of the letters in all of the training
+        words) to see if it is significant. If so, add it to the front of the best feature list.
+        '''
+        if self.best_feature_list[0] not in ['first_vowel', 'last_vowel',
+                                             'first_const', 'last_const',
+                                             'second_const', 'penult_const']:
+            if len(self.letter_set) >= 1:
+                self.best_feature_list.insert(0, 'letter_set')
 
     def retrain(self, _train_list):
         self.train_list = [i for i in _train_list if i[1] == 'y']
@@ -68,9 +84,7 @@ class RuleWizard:
         self.best_feature_list = [i[0] for i in sorted_feature_list]
 
         #create letter intersection set to find common letters in the train list
-        print self.train_words
         for i in self.train_words:
-            print self.letter_set
             self.letter_set = set(i).intersection(self.letter_set)
 
     def does_word_match_current_best_rule(self, word):
@@ -82,9 +96,7 @@ class RuleWizard:
         functions will print a string describing the rule.
         '''
         while not self.feature_dispatch[self.best_feature_list[0]](word, mode=2):
-            print "amputating..."
             self.amputate_first_significant_feature()
-            print self.best_feature_list
         if self.corpus_word_is_usable(word):
             return self.feature_dispatch[self.best_feature_list[0]](word, mode=1)
         else:
@@ -107,8 +119,27 @@ class RuleWizard:
         return True
 
     def test_letter_set(self, word, mode=1):
-        pass 
-
+        if mode == 1:
+            return self.letter_set.intersection(set(word)) == self.letter_set
+        elif mode == 2:
+            return True
+        elif mode == 3:
+            setlength = len(self.letter_set)
+            if setlength == 1:
+                print "The word must contain the letter \'%s\'." % self.letter_set.pop()
+            elif setlength >= 1:
+                a_string = ''
+                if setlength == 2:
+                    a_string = '\'' + self.letter_set.pop() + '\' and \'' + self.letter_set.pop() + '\''
+                    print "The words must contain the letters %s." % a_string
+                else:
+                    for i in range(setlength):
+                        if len(self.letter_set) >= 2:
+                            a_string += ('\'' + self.letter_set.pop() + '\', ')
+                        else:
+                            a_string += ('and \'' + self.letter_set.pop() + '\'')
+                    print "The words must contain the letters %s." % a_string
+    
     def test_last_vowel(self, word, mode=1):
         if mode == 1:
             return vowel_string(self.train_words[0])[-1] == vowel_string(word)[-1]

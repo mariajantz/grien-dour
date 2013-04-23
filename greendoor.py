@@ -1,5 +1,6 @@
 from rulewizard import *
 import nltk
+import random
 
 class Game:
     def __init__(self):
@@ -73,13 +74,19 @@ class Game:
         '''
         index = 0
         word = ''
+        #if the uncommented lines here are replaced with the commented lines,
+        #the word-grabbing will be random.
         for i in range(len(self.words)):
-            if self.wizard.does_word_match_current_best_rule(self.words[i]): # obeys rule:
+            #possible_word = random.choice(self.words).lower()
+            #if self.wizard.does_word_match_current_best_rule(possible_word):
+            if self.wizard.does_word_match_current_best_rule(self.words[i].lower()): # obeys rule:
+                #if possible_word not in self.guessed_words:
                 if self.words[i].lower() not in self.guessed_words:
                     word = self.words[i]
+                    #word = possible_word
                     break
         #return that word
-        self.words = self.words[i+1:]
+        #self.words = self.words[i+1:]
         return word
 
     def word_guess(self, count):
@@ -125,7 +132,7 @@ class Game:
 
     def check_play_again(self): 
         '''Asks user if they want to play again.'''
-        if input("Do you want to play again? (y/n) ").lower()[0] == 'y':
+        if raw_input("Do you want to play again? (y/n) ").lower()[0] == 'y':
             return True
         else: 
             return False
