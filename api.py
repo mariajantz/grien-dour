@@ -1,3 +1,11 @@
+'''
+PLEASE READ:
+
+THIS FILE WAS STOLEN FROM NLTK. ACCORDING TO THEIR LICENSE, I MUST TELL
+YOU THAT IT IS NOT MY WORK. THIS IS ME TELLING YOU THAT IT IS NOT MY WORK.
+-Seth Yoder
+'''
+
 # Natural Language Toolkit: Classifier Interface
 #
 # Copyright (C) 2001-2012 NLTK Project
